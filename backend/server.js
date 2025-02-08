@@ -12,6 +12,6 @@ app.use(express.json());
 app.use("/api/products", productRoutes);
 app.listen(process.env.PORT || 5000, () => {
 	connectDB();
-	console.log("Server listening on port 5000");
+	console.log(`Server listening on port ${process.env.PORT || 5000}`);
 })
 
