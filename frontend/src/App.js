@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Navbar, Button, Card, Row, Col, Modal, Form } from 'react-bootstrap';
+import { Container, Navbar, Button, Card, Row, Col, Modal, Form, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [products, setProducts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: '',
     image: '',
     price: ''
   });
+  const [editProduct, setEditProduct] = useState({
+    _id: '',
+    name: '',
+    image: '',
+    price: ''
+  });
+  const [deleteProductId, setDeleteProductId] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -22,17 +31,31 @@ function App() {
       .catch(error => console.error('Error fetching products:', error));
   };
 
-  const handleNewProduct = () => setShowModal(true);
+  const handleNewProduct = () => setShowAddModal(true);
 
-  const handleClose = () => {
-    setShowModal(false);
+  const handleCloseAddModal = () => {
+    setShowAddModal(false);
     setNewProduct({ name: '', image: '', price: '' });
   };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditProduct({ _id: '', name: '', image: '', price: '' });
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setNewProduct({
       ...newProduct,
-      [e.target.name]: e.target.value
+      [name]: value
+    });
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditProduct({
+      ...editProduct,
+      [name]: value
     });
   };
 
@@ -50,10 +73,67 @@ function App() {
     .then(data => {
       if (data.success) {
         setProducts([...products, data.data]);
-        handleClose();
+        handleCloseAddModal();
       }
     })
     .catch(error => console.error('Error adding product:', error));
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    
+    fetch(`/api/products/${editProduct._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editProduct)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        setProducts(products.map(product => 
+          product._id === editProduct._id ? data.data : product
+        ));
+        handleCloseEditModal();
+      }
+    })
+    .catch(error => console.error('Error updating product:', error));
+  };
+
+  const handleDeleteClick = (id) => {
+    setDeleteProductId(id);
+  };
+
+  const confirmDelete = () => {
+    fetch(`/api/products/${deleteProductId}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        setProducts(products.filter(product => product._id !== deleteProductId));
+        setDeleteProductId(null);
+      } else {
+        setError('Failed to delete product');
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting product:', error);
+      setError('Error deleting product');
+    })
+    .finally(() => {
+      setTimeout(() => setError(null), 3000);
+    });
+  };
+
+  const cancelDelete = () => {
+    setDeleteProductId(null);
+  };
+
+  const handleEditClick = (product) => {
+    setEditProduct(product);
+    setShowEditModal(true);
   };
 
   return (
@@ -68,9 +148,11 @@ function App() {
       </Navbar>
 
       <Container>
+        {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
+        
         <Row xs={1} md={2} lg={3} xl={4} className="g-4">
           {products.map((product) => (
-            <Col key={product.id}>
+            <Col key={product._id}>
               <Card className="h-100">
                 <Card.Img
                   variant="top"
@@ -80,6 +162,22 @@ function App() {
                 <Card.Body>
                   <Card.Title>{product.name}</Card.Title>
                   <Card.Text>${parseFloat(product.price).toFixed(2)}</Card.Text>
+                  <div className="d-flex gap-2">
+                    <Button 
+                      variant="warning" 
+                      size="sm"
+                      onClick={() => handleEditClick(product)}
+                    >
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="danger" 
+                      size="sm"
+                      onClick={() => handleDeleteClick(product._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </Card.Body>
               </Card>
             </Col>
@@ -87,7 +185,8 @@ function App() {
         </Row>
       </Container>
 
-      <Modal show={showModal} onHide={handleClose}>
+      {/* Add Product Modal */}
+      <Modal show={showAddModal} onHide={handleCloseAddModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add New Product</Modal.Title>
         </Modal.Header>
@@ -129,7 +228,7 @@ function App() {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+            <Button variant="secondary" onClick={handleCloseAddModal}>
               Cancel
             </Button>
             <Button variant="primary" type="submit">
@@ -137,6 +236,77 @@ function App() {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Edit Product Modal */}
+      <Modal show={showEditModal} onHide={handleCloseEditModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Product</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleEditSubmit}>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Product Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={editProduct.name}
+                onChange={handleEditChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Image URL</Form.Label>
+              <Form.Control
+                type="url"
+                name="image"
+                value={editProduct.image}
+                onChange={handleEditChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Price</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                min="0"
+                name="price"
+                value={editProduct.price}
+                onChange={handleEditChange}
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseEditModal}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit">
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={!!deleteProductId} onHide={cancelDelete}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this product? This action cannot be undone.
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cancelDelete}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDelete}>
+            Delete
+          </Button>
+        </Modal.Footer>
       </Modal>
     </>
   );

@@ -29,7 +29,6 @@ export const deleteProduct = async (req, res) => {
 
 export const getProducts = async (req,res) => {
 	const data = await Product.find({})
-	console.log(`Data is ${data}`);
 	res.status(200).json({success: true, data: data});
 }
 
