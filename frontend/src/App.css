@@ -1,38 +1,67 @@
-.App {
-  text-align: center;
+/* Import Google Font for a modern look */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+/* General Styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #f8f9fa;
+  color: #444;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Navbar Styling */
+.navbar {
+  background-color: #ffe4e1;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Buttons */
+.btn {
+  background-color: #a7c7e7;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #91b4db;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* Form Inputs */
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #d1d1d1;
+}
+
+/* Alert Messages */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+/* Grid Layout Adjustments */
+.row {
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
   }
-}
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+  .card {
+    margin-bottom: 15px;
   }
 }

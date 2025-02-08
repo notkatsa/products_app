@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Navbar, Button, Card, Row, Col, Modal, Form, Alert } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css'
 
 function App() {
   const [products, setProducts] = useState([]);
