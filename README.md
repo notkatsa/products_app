@@ -64,8 +64,5 @@ Ensure you have the following installed:
 - **Backend:** Node.js, Express, MongoDB, Mongoose
 
 ## Contributing
-Feel free to fork and modify the project! Suggestions and contributions are welcome.
-
-## License
-This project is open-source and available under the MIT License.
-
+Feel free to fork and modify the project! This was a learning project for me but I will surely
+fork from it when creating something new
