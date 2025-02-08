@@ -1,3 +1,5 @@
+![;](https://github.com/notkatsa/products_app/blob/main/site.png?raw=true ";")
+
 # Products MERN App
 
 This is a simple web application built using the MERN (MongoDB, Express, React, Node.js) stack.
